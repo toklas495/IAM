@@ -1,0 +1,8 @@
+{
+    "require":["src/__tests__/setup.mjs"],
+    "recursive":true,
+    "timeout":5000,
+    "exit":true,
+    "color":true,
+    "spec":"src/__tests__/**/*.test.mjs"
+}
