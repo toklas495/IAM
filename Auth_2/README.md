@@ -60,29 +60,40 @@ identityService/
 ## Auth Flow Visuals
 
 ### Provider Selection & Account Linking
+The Mermaid flowchart has a logical issue with the flow after the password verification step. Here's what's wrong:
+
+**Problem:** After `LinkEndpoint --> PasswordProvider`, the flow goes to `AccountLinker`, but it never verifies whether the password authentication was successful or not. There's no conditional branch to handle authentication failure.
+
+**Issues:**
+
+1. **Missing authentication result handling**: `PasswordProvider` should have a success/failure branch before proceeding to `AccountLinker`
+2. **Unconditional linking**: The flow assumes password authentication always succeeds, which isn't realistic
+
+**Suggested fix:**
 ```mermaid
-flowchart TD
+    flowchart TD
    Client([Client selects provider]) --> Choice{Provider type?}
    Choice -->|Password| PasswordLogin[POST /auth/login/password]
    PasswordLogin --> PasswordProvider[Password provider authenticate]
    PasswordProvider --> AccountResolve[AccountService.resolveAccount]
    AccountResolve --> Session[SessionService.createSession]
-
    Choice -->|OAuth| OauthInit[POST /auth/login/:provider]
-   OauthInit --> SaveFlow[saveAuthFlow -> flow_id]
-   SaveFlow --> Redirect[provider.initiate -> redirect_uri]
+   OauthInit --> SaveFlow[saveAuthFlow issues flow_id]
+   SaveFlow --> Redirect[provider.initiate returns redirect_uri]
    Redirect --> Callback[Provider callback + auth code]
-   Callback --> AuthFlow[getAuthFlow(flow_id)]
-   AuthFlow --> ProviderAuth[provider.authenticate()]
+   Callback --> AuthFlow["getAuthFlow flow_id"]
+   AuthFlow --> ProviderAuth["provider.authenticate"]
    ProviderAuth --> AccountResolve
    AccountResolve -->|Existing provider account| Session
-   AccountResolve -->|Email belongs to password user| LinkReq[updateAuthFlow = LINK_REQUIRED]
+   AccountResolve -->|Email belongs to password user| LinkReq[updateAuthFlow marks LINK_REQUIRED]
    LinkReq --> Prompt[Prompt user for password login]
    Prompt --> LinkEndpoint[POST /auth/link-account]
    LinkEndpoint --> PasswordProvider
    LinkEndpoint --> AccountLinker[AccountService.linkAccount]
    AccountLinker --> Session
 ```
+
+The key change is adding a decision node after the password verification to handle both success and failure cases.
 
 ### Sequence: OAuth Login Followed By Password Linking
 ```mermaid
