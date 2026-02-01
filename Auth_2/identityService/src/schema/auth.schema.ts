@@ -1,0 +1,122 @@
+export const registerSchema= {
+    body:{
+        type:"object",
+        required:["username","email","full_name","password"],
+        properties:{
+            username:{type:"string",minLength:3,maxLength:50},
+            password:{type:"string",minLength:10,pattern:"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).+$"},
+            email:{type:"string",format:"email"},
+            full_name:{type:"string",minLength:4,maxLength:100}
+        },
+        additionalProperties:false
+    },
+    response:{
+        201:{
+            type:"object",
+            properties:{
+                status:{type:"string"},
+                message:{type:"string"}
+            }
+        }
+    }
+}
+export const loginSchema = {
+    body:{
+        type:"object",
+        required:["password","email"],
+        properties:{
+            password:{type:"string",minLength:10,pattern:"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).+$"},
+            email:{type:"string",format:"email"}
+        },
+        additionalProperties:false
+    },
+    response:{
+        200:{
+            type:"object",
+            properties:{
+                status:{type:"string"},
+                message:{type:"string"},
+                data:{
+                    type:"object",
+                    properties:{
+                        token:{type:"string"},
+                        expires_in:{type:"string"}
+                    }
+                }
+            }
+        }
+    }
+}
+
+export const OauthInitiateSchema = {
+    querystring:{
+        type:"object",
+        required:["provider"],
+        properties:{
+            provider:{type:"string",enum:["google","github"]}
+        }
+    }
+}
+
+export const OauthCallbackSchema = {
+    querystring:{
+        type:"object",
+        properties:{
+            code:{type:"string"},
+            state:{type:"string"},
+            error:{type:"string"},
+            error_description:{type:"string"}
+        },
+        additionalProperties:false
+    },
+    response:{
+        200:{
+            type:"object",
+            properties:{
+                status:{type:"string"},
+                message:{type:"string"},
+                data:{
+                    type:"object",
+                    properties:{
+                        token:{type:"string"},
+                        expires_in:{type:"string"}
+                    }
+                }
+            }
+        }
+    }
+}
+
+export const AuthLinkSchema = {
+    params:{
+        type:"object",
+        required:["flowId"],
+        properties:{
+            flowId:{type:"string"}
+        }
+    },
+    body:{
+        type:"object",
+        required:["provider"],
+        properties:{
+            provider:{type:"string",enum:["password","oauth"]},
+            password:{type:"string"}
+        }
+    },
+     response:{
+        200:{
+            type:"object",
+            properties:{
+                status:{type:"string"},
+                message:{type:"string"},
+                data:{
+                    type:"object",
+                    properties:{
+                        token:{type:"string"},
+                        expires_in:{type:"string"}
+                    }
+                }
+            }
+        }
+    }
+}

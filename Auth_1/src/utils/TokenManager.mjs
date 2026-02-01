@@ -154,7 +154,7 @@ export const jwtVerify = async (cache, token) => {
 
 
 export const oauth_jwtVerify = async (token, options = {}) => {
-  const client = JwksClient({
+  const client = new JwksClient({
     jwksUri: options?.jwks_uri || "https://www.googleapis.com/oauth2/v3/certs",
     cache: true,
     cacheMaxAge: 10 * 60 * 1000,
