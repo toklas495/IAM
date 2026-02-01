@@ -62,7 +62,7 @@ identityService/
 ### Provider Selection & Account Linking
 ```mermaid
 flowchart TD
-   Client[Client selects provider] --> Choice{Provider type?}
+   Client([Client selects provider]) --> Choice{Provider type?}
    Choice -->|Password| PasswordLogin[POST /auth/login/password]
    PasswordLogin --> PasswordProvider[Password provider authenticate]
    PasswordProvider --> AccountResolve[AccountService.resolveAccount]
@@ -70,14 +70,14 @@ flowchart TD
 
    Choice -->|OAuth| OauthInit[POST /auth/login/:provider]
    OauthInit --> SaveFlow[saveAuthFlow -> flow_id]
-   SaveFlow --> Redirect[Provider.initiate -> redirect_uri]
+   SaveFlow --> Redirect[provider.initiate -> redirect_uri]
    Redirect --> Callback[Provider callback + auth code]
    Callback --> AuthFlow[getAuthFlow(flow_id)]
    AuthFlow --> ProviderAuth[provider.authenticate()]
    ProviderAuth --> AccountResolve
    AccountResolve -->|Existing provider account| Session
-   AccountResolve -->|Email belongs to password user| LinkReq[updateAuthFlow: LINK_REQUIRED]
-   LinkReq --> Prompt[Client prompted for password login]
+   AccountResolve -->|Email belongs to password user| LinkReq[updateAuthFlow = LINK_REQUIRED]
+   LinkReq --> Prompt[Prompt user for password login]
    Prompt --> LinkEndpoint[POST /auth/link-account]
    LinkEndpoint --> PasswordProvider
    LinkEndpoint --> AccountLinker[AccountService.linkAccount]
